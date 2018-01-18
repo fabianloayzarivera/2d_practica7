@@ -9,15 +9,14 @@
 
 #include <glfw3.h>
 #include <stb_image.h>
-//#include <font.h>
 #include <Vec2.h>
 #include <list>
-//#include <random>
 #include <world.h>
 using namespace std;
 
 ltex_t *createTexture(const char *filename, int *width, int *height);
 void beeUpdatePosAngle(float &angle,  double &xposBee, double &yposBee, Vec2 mousePos, Vec2 &beePos, float deltaTime);
+inline std::string extractPath(const std::string& filename);
 
 int main() {
 
@@ -44,40 +43,31 @@ int main() {
 	World world;
 	int widthSprite		= 192;
 	int heightSprite		= 32;
-	Sprite beeSprite	= Sprite(createTexture("./data/run.png", &widthSprite, &heightSprite), 6, 1);
+	Sprite IdlePlayerSprite	= Sprite(createTexture("./data/idle.png", &widthSprite, &heightSprite), 1, 1);
 	
-	beeSprite.setPosition(Vec2(0, 0));
-	beeSprite.setBlend(BLEND_ALPHA);
-	beeSprite.setFps(8);
-	beeSprite.setPivot(Vec2(0.5f, 0.5f));
-
-	
+	IdlePlayerSprite.setPosition(Vec2(0, 0));
+	IdlePlayerSprite.setBlend(BLEND_ALPHA);
+	IdlePlayerSprite.setFps(8);
+	IdlePlayerSprite.setPivot(Vec2(0.5f, 0.5f));	
 		
 
-	int widthBack3 = 128;
-	int heightBack3 = 128;
-	world.setBackground(0, createTexture("./data/background.png", &widthBack3, &heightBack3));
+	int widthBack = 128;
+	int heightBack = 128;
+	world.setBackground(0, createTexture("./data/background.png", &widthBack, &heightBack));
 	world.setScrollRatio(0, 0.4);
-	world.setScrollSpeed(0, Vec2(16, 8));
+	world.setScrollSpeed(0, Vec2(0, 0));
 
-	int widthBack1 = 256;
-	int heightBack1 = 800;
-	world.setBackground(1, createTexture("./data/trees1.png", &widthBack1, &heightBack1));
-	world.setScrollRatio(1, 0.8);
-	world.setScrollSpeed(1, Vec2(0, 0));
+	string tilesPath = extractPath("./data/map.tmx");
+	tilesPath += "tiles.png";
 
-	int widthBack2 = 256;
-	int heightBack2 = 800;
-	world.setBackground(2, createTexture("./data/trees2.png", &widthBack2, &heightBack2));
-	world.setScrollRatio(2, 0.6);
-	world.setScrollSpeed(1, Vec2(0, 0));
+	int widthTiles = 256;
+	int heightTiles = 160;
 
-	int widthBack0 = 4096;
-	int heightBack0 = 800;
-	world.setBackground(3, createTexture("./data/level.png", &widthBack0, &heightBack0));
-	world.setScrollRatio(3, 1);
-	world.setScrollSpeed(1, Vec2(0, 0));
-	world.addSprite(beeSprite);
+	world.setMapTiles(createTexture(tilesPath.c_str(), &widthTiles, &heightTiles));
+	world.loadMap("./data/map.tmx", 0);
+
+	
+	world.addSprite(IdlePlayerSprite);
 
 	int beeFrame;
 	float frame = 0;
@@ -182,4 +172,14 @@ void beeUpdatePosAngle(float &angle, double &xposBee, double &yposBee, Vec2 mous
 	yposBee += pointsY;
 
 	beePos = Vec2(xposBee, yposBee);
+}
+
+inline std::string extractPath(const std::string& filename) {
+	std::string filenameCopy = filename;
+	while (filenameCopy.find("\\") != std::string::npos) {
+		filenameCopy.replace(filenameCopy.find("\\"), 1, "/");
+	}
+	filenameCopy = filenameCopy.substr(0, filenameCopy.rfind('/'));
+	if (filenameCopy.size() > 0) filenameCopy += "/";
+	return filenameCopy;
 }

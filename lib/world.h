@@ -1,5 +1,7 @@
 #pragma once
 #include "sprite.h"
+#include "pugiconfig.hpp"
+#include "pugixml.hpp"
 
 class World {
 private:
@@ -8,25 +10,23 @@ private:
 	float clearGreen;
 	float clearBlue;
 	ltex_t* textures[255];
-	//ltex_t* back0;
-	//ltex_t* back1;
-	//ltex_t* back2;
-	//ltex_t* back3;
+	ltex_t* mapTiles;
 	lblend_t backgroundBlend;
 	float scrollRatios[255];
-	//float scrollRatio0;
-	//float scrollRatio1;
-	//float scrollRatio2;
-	//float scrollRatio3;
-	float back3FrameX;
-	float back3FrameY;
 	Vec2 scrollSpeeds[255];
 	Vec2 scrollSpeedFrames[255];
-
+	std::vector<int> tileIds;
+	int tileWidth;
+	int tileHeight;
+	int mapWidthTileCount;
+	int mapHeightTileCount;
+	uint16_t firstCollisionableId;
+	int firstgId;
 	int textureAmount;
 	Vec2 cameraPosition;
 	Vec2 screenSize;
 	Vec2 worldSize;
+	Vec2 mapSize;
 
 public:
 	World();
@@ -35,7 +35,9 @@ public:
 	float getClearGreen() const { return clearGreen; }
 	float getClearBlue() const { return clearBlue; }
 	const ltex_t* getBackground(size_t layer) const;
-	void World::setBackground(size_t layer, ltex_t* tex);
+	void setBackground(size_t layer, ltex_t* tex);
+	void setMapTiles(ltex_t* tex) { mapTiles = tex; }
+	ltex_t* getMapTiles() { return mapTiles; }
 	float getScrollRatio(size_t layer) const;
 	void setScrollRatio(size_t layer, float ratio);
 	const Vec2& getScrollSpeed(size_t layer) const;
@@ -54,6 +56,12 @@ public:
 	void updateCameraPosition(const Vec2& pos, float deltaTime);
 	void update(float deltaTime);
 	void draw(const Vec2& screenSize);
+	bool loadMap(const char* filename, uint16_t firstColId);
+	void drawMap();
+	Vec2 getMapSize() const;
+	bool moveSprite(Sprite& sprite, const Vec2& amount);
+	void calculateUV(int gid, float &u0, float &v0, float &u1, float &v1);
+
 };
 	
 
