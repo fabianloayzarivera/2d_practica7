@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\collider.cpp" />
     <ClCompile Include="..\src\font.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\pugixml.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="..\src\world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\lib\collider.h" />
     <ClInclude Include="..\lib\font.h" />
     <ClInclude Include="..\lib\litegfx.h" />
     <ClInclude Include="..\lib\sprite.h" />
@@ -107,6 +109,7 @@
       <AdditionalIncludeDirectories>../lib</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <AdditionalOptions>/std:c++latest</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

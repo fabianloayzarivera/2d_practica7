@@ -14,13 +14,14 @@ public:
 
 	Vec2(float xNew = 0, float yNew = 0);
 	//Vec2 sum(const Vec2 &other);
-	Vec2 operator +(const Vec2& other);
+	Vec2 operator +(const Vec2& other) const;
+	Vec2 operator +(const float value) const;
 	//Vec2 subs(const Vec2 &other);
-	Vec2 operator -(const Vec2& other);
+	Vec2 operator -(const Vec2& other) const;
 	//Vec2 mult(const Vec2 &other);
-	Vec2 operator *(const Vec2& other);
+	Vec2 operator *(const Vec2& other) const;
 	//Vec2 div(const Vec2 &other);
-	Vec2 operator /(const Vec2& other);
+	Vec2 operator /(const Vec2& other) const;
 	Vec2 abs();
 	float lenght();
 	Vec2 norm();

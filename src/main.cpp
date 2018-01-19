@@ -41,14 +41,23 @@ int main() {
 	Vec2 screenSize(800, 600);
 
 	World world;
-	int widthSprite		= 192;
-	int heightSprite		= 32;
-	Sprite IdlePlayerSprite	= Sprite(createTexture("./data/idle.png", &widthSprite, &heightSprite), 1, 1);
 	
-	IdlePlayerSprite.setPosition(Vec2(0, 0));
-	IdlePlayerSprite.setBlend(BLEND_ALPHA);
-	IdlePlayerSprite.setFps(8);
-	IdlePlayerSprite.setPivot(Vec2(0.5f, 0.5f));	
+	int widthSprite		= 32;
+	int heightSprite		= 32;
+	ltex_t* idleTexture = createTexture("./data/idle.png", &widthSprite, &heightSprite);
+	Sprite PlayerSprite	= Sprite(idleTexture, 1, 1);
+	
+	PlayerSprite.setPosition(Vec2(0, 0));
+	PlayerSprite.setBlend(BLEND_ALPHA);
+	PlayerSprite.setFps(1);
+	PlayerSprite.setSize(Vec2(widthSprite, heightSprite));
+	PlayerSprite.setPivot(Vec2(0.5f, 0.5f));
+	PlayerSprite.setScale(Vec2(1, 1));
+	PlayerSprite.setCollisionType(COLLISION_RECT);
+
+	int runWidth = 192;
+	int runHeight = 32;
+	ltex_t* runTexture = createTexture("./data/run.png", &runWidth, &runHeight);
 		
 
 	int widthBack = 128;
@@ -67,7 +76,7 @@ int main() {
 	world.loadMap("./data/map.tmx", 0);
 
 	
-	world.addSprite(IdlePlayerSprite);
+	world.addSprite(PlayerSprite);
 
 	int beeFrame;
 	float frame = 0;
@@ -78,10 +87,11 @@ int main() {
 	double yposBee = 0;
 	Vec2 mousePos;
 	float angle=0;
+	float spriteSpeed = 128.0f;
 	Vec2 cameraPosition = world.getCameraPosition();
 	world.updateWorldSize();
-	Vec2 beePos;
-	
+	Vec2 spritePos(0,0);
+	float jumpImpulse = 0;
 	while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE)) {
 		// Actualizamos delta
 		float deltaTime = static_cast<float>(glfwGetTime() - lastTime);
@@ -97,17 +107,69 @@ int main() {
 		lgfx_setorigin(world.getCameraPosition().x, world.getCameraPosition().y);
 
 		glfwGetCursorPos(window, &xposMouse, &yposMouse);
-		mousePos = Vec2(static_cast<float>(xposMouse), static_cast<float>(yposMouse));
-		mousePos.x += world.getCameraPosition().x;
-		mousePos.y += world.getCameraPosition().y;
-		beeUpdatePosAngle(angle, xposBee, yposBee, mousePos, beePos, deltaTime);
 
-		world.updateSpritePosition(beePos);
+
+		if (PlayerSprite.getTexture() != idleTexture) {
+			PlayerSprite.setTexture(idleTexture);
+			PlayerSprite.setFrames(1, 1);
+			PlayerSprite.setFps(1);
+		}
+
+		
+		
+		if (glfwGetKey(window, GLFW_KEY_UP)) {
+			world.moveSprite(Vec2(0,spriteSpeed * -1 * deltaTime));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+			world.moveSprite(Vec2(0,spriteSpeed * deltaTime));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_LEFT)) {			
+			world.moveSprite(Vec2(spriteSpeed * -1 * deltaTime, 0));
+			if (PlayerSprite.getTexture() != runTexture) {
+				PlayerSprite.setTexture(runTexture);
+				PlayerSprite.setTextureHorizontalDirection(-1);
+				PlayerSprite.setFrames(6, 1);
+				PlayerSprite.setFps(6);
+			}
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+			world.moveSprite(Vec2(spriteSpeed * deltaTime, 0));
+			if (PlayerSprite.getTexture() != runTexture) {
+				PlayerSprite.setTexture(runTexture);
+				PlayerSprite.setTextureHorizontalDirection(1);
+				PlayerSprite.setFrames(6, 1);
+				PlayerSprite.setFps(6);
+			}
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+			//if it is colliding!
+			jumpImpulse = spriteSpeed * 4;
+		}
+
+		//JUMP
+		if (jumpImpulse > 0) {
+			float points = jumpImpulse *  deltaTime;
+			world.moveSprite(Vec2(0, -points));
+			jumpImpulse -= points;
+		}
+		//GRAVITY
+		if (PlayerSprite.getPosition().y < world.getMapSize().y - 45) //CHANGE WITH COLLISION
+			world.moveSprite(Vec2(0, spriteSpeed * 2 * deltaTime));
+
+
 		world.updateSpriteAngle(angle);		
 		world.update(deltaTime);
 		world.draw(screenSize);
-		world.updateCameraPosition(beePos, deltaTime);
+		world.updateCameraPosition(deltaTime);
 		
+		/*lgfx_setcolor(0, 1, 0, 0.5f);
+		lgfx_drawrect(PlayerSprite.getTopLeft().x, PlayerSprite.getTopLeft().y, PlayerSprite.getScaledSize().x, PlayerSprite.getScaledSize().y);
+
+		lgfx_setcolor(1, 1, 1, 1);*/
 		
 		// Actualizamos ventana y eventos
 		glfwSwapBuffers(window);

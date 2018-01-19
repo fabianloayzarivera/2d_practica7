@@ -5,15 +5,23 @@ Vec2::Vec2(float xNew, float yNew) {
 	y = yNew;
 }
 
-Vec2 Vec2::operator+(const Vec2& other) {
+Vec2 Vec2::operator+(const Vec2& other) const {
 	Vec2 ret;
 	ret.x = x + other.x;
 	ret.y = y + other.y;
-	
+
 	return ret;
 }
 
-Vec2 Vec2::operator-(const Vec2& other) {
+Vec2 Vec2::operator+(const float value) const {
+	Vec2 ret;
+	ret.x = x + value;
+	ret.y = y + value;
+
+	return ret;
+}
+
+Vec2 Vec2::operator-(const Vec2& other) const {
 	Vec2 ret;
 	ret.x = x - other.x;
 	ret.y = y - other.y;
@@ -21,7 +29,7 @@ Vec2 Vec2::operator-(const Vec2& other) {
 	return ret;
 }
 
-Vec2 Vec2::operator*(const Vec2& other) {
+Vec2 Vec2::operator*(const Vec2& other) const {
 	Vec2 ret;
 	ret.x = x * other.x;
 	ret.y = y * other.y;
@@ -29,7 +37,7 @@ Vec2 Vec2::operator*(const Vec2& other) {
 	return ret;
 }
 
-Vec2 Vec2::operator/(const Vec2& other) {
+Vec2 Vec2::operator/(const Vec2& other) const {
 	Vec2 ret;
 	ret.x = x / other.x;
 	ret.y = y / other.y;
@@ -68,19 +76,19 @@ Vec2 Vec2::norm() {
 	else {
 		*this;
 	}
-	
+
 }
 
-float Vec2::dot(const Vec2 &other){
+float Vec2::dot(const Vec2 &other) {
 	return ((x * other.x) + (y * other.y));
-	
+
 }
 
 float Vec2::angle(const Vec2& other) const {
 	float angle;
 	float diffY = y - other.y;
 	float diffX = other.x - x;
-	
+
 	angle = fabs(atan((diffY) / (diffX)));
 
 	if ((diffX < 0) && (diffY > 0))
@@ -95,7 +103,7 @@ float Vec2::angle(const Vec2& other) const {
 }
 
 float Vec2::distance(const Vec2& other) const {
-	
+
 	return static_cast<float>(sqrt(powf(other.x - x, 2) + powf(other.y - y, 2)));
 
 }

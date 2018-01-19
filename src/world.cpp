@@ -14,10 +14,10 @@ World::World() {
 	firstgId = 0;
 }
 
-void World::updateCameraPosition(const Vec2& pos, float deltaTime) {
+void World::updateCameraPosition(float deltaTime) {
 		
-	cameraPosition.x = pos.x - (screenSize.x / 2.0f);
-	cameraPosition.y = pos.y - (screenSize.y / 2.0f);
+	cameraPosition.x = sprite->getPosition().x - (screenSize.x / 2.0f);
+	cameraPosition.y = sprite->getPosition().y - (screenSize.y / 2.0f);
 	if (cameraPosition.x < 0)
 		cameraPosition.x = 0;
 	if (cameraPosition.y < 0)
@@ -163,7 +163,16 @@ Vec2 World::getMapSize() const {
 	return mapSize;
 }
 
-bool World::moveSprite(Sprite& sprite, const Vec2& amount) {
+bool World::moveSprite(const Vec2& amount) {
+
+	sprite->setPosition(sprite->getPosition() + amount);
+	if (amount.x > 0) {
+		
+	}
+	else if (amount.x < 0) {
+	
+	}
+
 
 	return true;
 }
