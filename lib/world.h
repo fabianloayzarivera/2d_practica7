@@ -6,6 +6,7 @@
 class World {
 private:
 	Sprite* sprite;
+	Sprite* collisionSprite;
 	float clearRed;
 	float clearGreen;
 	float clearBlue;
@@ -49,6 +50,7 @@ public:
 	const Vec2& getWorldSize() const { return worldSize; }
 	void setWorldSize(const Vec2& size) { worldSize = size; }
 	void addSprite(Sprite& s) { sprite = &s; }
+	void addCollisionSprite(Sprite& s) { collisionSprite = &s; }
 	void removeSprite(Sprite& s) { delete(sprite); sprite = &s;	}
 	void updateSpritePosition(const Vec2& pos) { sprite->setPosition(pos); }
 	void updateSpriteAngle(const float angle) { sprite->setAngle(angle); }
@@ -59,7 +61,7 @@ public:
 	bool loadMap(const char* filename, uint16_t firstColId);
 	void drawMap();
 	Vec2 getMapSize() const;
-	bool moveSprite(const Vec2& amount);
+	bool moveSprite(Sprite& sprite, const Vec2& amount);
 	void calculateUV(int gid, float &u0, float &v0, float &u1, float &v1);
 
 };

@@ -140,9 +140,7 @@ bool World::loadMap(const char* filename, uint16_t firstColId) {
 
 void World::drawMap() {
 	
-	float u0, v0, u1, v1;
-
-	
+	float u0, v0, u1, v1;	
 	for (int i = 0; i < mapHeightTileCount; i++) {
 		for (int j = 0; j < mapWidthTileCount; j++) {
 			int gidPos = (i * mapWidthTileCount) + j;
@@ -163,18 +161,26 @@ Vec2 World::getMapSize() const {
 	return mapSize;
 }
 
-bool World::moveSprite(const Vec2& amount) {
-
-	sprite->setPosition(sprite->getPosition() + amount);
-	if (amount.x > 0) {
-		
-	}
-	else if (amount.x < 0) {
+bool World::moveSprite(Sprite& sprite, const Vec2& amount) {
 	
+	Vec2  oldPos= sprite.getPosition();
+	sprite.setPosition(sprite.getPosition() + amount);
+	for (int i = 0; i < mapHeightTileCount; i++) {
+		for (int j = 0; j < mapWidthTileCount; j++) {
+			int gidPos = (i * mapWidthTileCount) + j;
+			float xPos = j * tileWidth;
+			float yPos = i * tileHeight;
+			if (tileIds.at(gidPos) > 0) {
+				collisionSprite->setPosition(Vec2(xPos, yPos));
+
+				if (sprite.collides(*collisionSprite)) {
+					sprite.setPosition(oldPos);
+					return true;
+				}
+			}
+		}
 	}
-
-
-	return true;
+	return false;	
 }
 
 void World::calculateUV(int gid, float &u0, float &v0, float &u1, float &v1) {

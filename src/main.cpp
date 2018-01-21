@@ -51,9 +51,16 @@ int main() {
 	PlayerSprite.setBlend(BLEND_ALPHA);
 	PlayerSprite.setFps(1);
 	PlayerSprite.setSize(Vec2(widthSprite, heightSprite));
-	PlayerSprite.setPivot(Vec2(0.5f, 0.5f));
+	PlayerSprite.setPivot(Vec2(0, 0));
 	PlayerSprite.setScale(Vec2(1, 1));
 	PlayerSprite.setCollisionType(COLLISION_RECT);
+
+	Sprite collisionSprite(nullptr, 1, 1);
+	collisionSprite.setSize(Vec2(widthSprite, heightSprite));
+	collisionSprite.setPivot(Vec2(0,0));
+	collisionSprite.setScale(Vec2(1, 1));
+	collisionSprite.setCollisionType(COLLISION_RECT);
+
 
 	int runWidth = 192;
 	int runHeight = 32;
@@ -77,21 +84,26 @@ int main() {
 
 	
 	world.addSprite(PlayerSprite);
-
+	world.addCollisionSprite(collisionSprite);
 	int beeFrame;
 	float frame = 0;
 	double lastTime = glfwGetTime();
 	double xposMouse = 0;
 	double yposMouse = 0;
-	double xposBee = 0;
-	double yposBee = 0;
+	bool jumping = false;
 	Vec2 mousePos;
 	float angle=0;
 	float spriteSpeed = 128.0f;
 	Vec2 cameraPosition = world.getCameraPosition();
 	world.updateWorldSize();
+	world.setCameraPosition(Vec2(0, world.getWorldSize().y - screenSize.y));
+	PlayerSprite.setPosition(Vec2(widthSprite , world.getWorldSize().y - heightSprite*5));
 	Vec2 spritePos(0,0);
 	float jumpImpulse = 0;
+	float speedY = 0.0f ;
+	float gravity = 12.0f;
+	float velocity =0.5f;
+
 	while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE)) {
 		// Actualizamos delta
 		float deltaTime = static_cast<float>(glfwGetTime() - lastTime);
@@ -104,8 +116,9 @@ int main() {
 		screenSize = Vec2(screenWidth, screenHeight);
 		world.setScreenSize(screenSize);
 		lgfx_clearcolorbuffer(world.getClearRed(), world.getClearGreen(), world.getClearBlue());
+		
 		lgfx_setorigin(world.getCameraPosition().x, world.getCameraPosition().y);
-
+		//lgfx_setorigin(0, 0);
 		glfwGetCursorPos(window, &xposMouse, &yposMouse);
 
 
@@ -115,18 +128,8 @@ int main() {
 			PlayerSprite.setFps(1);
 		}
 
-		
-		
-		if (glfwGetKey(window, GLFW_KEY_UP)) {
-			world.moveSprite(Vec2(0,spriteSpeed * -1 * deltaTime));
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-			world.moveSprite(Vec2(0,spriteSpeed * deltaTime));
-		}
-
 		if (glfwGetKey(window, GLFW_KEY_LEFT)) {			
-			world.moveSprite(Vec2(spriteSpeed * -1 * deltaTime, 0));
+			world.moveSprite(PlayerSprite, Vec2(spriteSpeed * -1 * deltaTime, 0));
 			if (PlayerSprite.getTexture() != runTexture) {
 				PlayerSprite.setTexture(runTexture);
 				PlayerSprite.setTextureHorizontalDirection(-1);
@@ -136,7 +139,7 @@ int main() {
 		}
 		
 		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-			world.moveSprite(Vec2(spriteSpeed * deltaTime, 0));
+			world.moveSprite(PlayerSprite, Vec2(spriteSpeed * deltaTime, 0));
 			if (PlayerSprite.getTexture() != runTexture) {
 				PlayerSprite.setTexture(runTexture);
 				PlayerSprite.setTextureHorizontalDirection(1);
@@ -147,30 +150,31 @@ int main() {
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
 			//if it is colliding!
-			jumpImpulse = spriteSpeed * 4;
+			//jumpImpulse = spriteSpeed * 4;
+			if (!jumping) {
+				speedY = -4;
+				jumping = true;
+			}
+			
 		}
 
-		//JUMP
-		if (jumpImpulse > 0) {
-			float points = jumpImpulse *  deltaTime;
-			world.moveSprite(Vec2(0, -points));
-			jumpImpulse -= points;
-		}
-		//GRAVITY
-		if (PlayerSprite.getPosition().y < world.getMapSize().y - 45) //CHANGE WITH COLLISION
-			world.moveSprite(Vec2(0, spriteSpeed * 2 * deltaTime));
 
+		if (speedY < spriteSpeed * 2 * deltaTime) {
+			speedY += velocity * gravity * deltaTime;
+		}
+
+		if (world.moveSprite(PlayerSprite, Vec2(0, speedY))) {
+			jumping = false;
+		}
+		else {
+			jumping = true;
+		}
 
 		world.updateSpriteAngle(angle);		
 		world.update(deltaTime);
 		world.draw(screenSize);
 		world.updateCameraPosition(deltaTime);
-		
-		/*lgfx_setcolor(0, 1, 0, 0.5f);
-		lgfx_drawrect(PlayerSprite.getTopLeft().x, PlayerSprite.getTopLeft().y, PlayerSprite.getScaledSize().x, PlayerSprite.getScaledSize().y);
 
-		lgfx_setcolor(1, 1, 1, 1);*/
-		
 		// Actualizamos ventana y eventos
 		glfwSwapBuffers(window);
 		glfwPollEvents();
